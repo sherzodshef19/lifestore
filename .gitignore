@@ -1,0 +1,24 @@
+# Agent & Metadata (Internal)
+.gemini/
+brain/
+artifacts/
+.system_generated/
+tmp/
+
+# OSPanel & Local Environment
+.idea/
+.vscode/
+*.log
+*.tmp
+*.bak
+init_expenses.php
+check_db_status_*.webp
+
+# Configs (Be careful if you want to keep db credentials local)
+# config.php
+# init.sql
+
+# Browser & OS files
+.DS_Store
+Thumbs.db
+node_modules/
