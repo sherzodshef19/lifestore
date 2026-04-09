@@ -50,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$blocked_minutes) {
     <title>LifeStore - Кириш</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="pwa/manifest.json">
+    <meta name="theme-color" content="#1e3c72">
     <style>
         body {
             font-family: 'Outfit', sans-serif;
@@ -236,4 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$blocked_minutes) {
         }, 60);
     });
 </script>
+
+<!-- PWA Registration -->
+<script src="pwa/init.js"></script>
 </html>

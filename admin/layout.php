@@ -19,6 +19,10 @@ function render_header($title = 'Admin Panel') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="../pwa/manifest.json">
+    <meta name="theme-color" content="#1a1c23">
     <style>
         :root {
             --sidebar-width: 260px;
@@ -322,6 +326,9 @@ function render_footer() {
     setInterval(updateClock, 1000);
     updateClock();
 </script>
+
+<!-- PWA Registration -->
+<script src="../pwa/init.js"></script>
 </body>
 </html>
 <?php
