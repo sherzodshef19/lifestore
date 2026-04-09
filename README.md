@@ -77,9 +77,9 @@
     $db   = 'lifestore';
     ```
 4.  Тизимга кириш:
-    - **URL**: `http://localhost/lifestore`
+    - **URL**: `http://lifestore`
     - **Login**: `admin`
-    - **Password**: `12345`
+    - **Password**: `1998`
 
 ---
 
