@@ -4,19 +4,21 @@ require_once 'layout.php';
 $success = '';
 $error = '';
 
-if (isset($_POST['update_settings'])) {
+if (isset($_POST['update_general'])) {
     setSetting('telegram_token', $_POST['telegram_token']);
     setSetting('telegram_userid', $_POST['telegram_userid']);
     setSetting('printer_ip', $_POST['printer_ip']);
-    
-    // New Receipt Settings
+    $success = "Умумий созламалар сақланди!";
+}
+
+if (isset($_POST['update_receipt'])) {
     setSetting('receipt_store_name', $_POST['receipt_store_name']);
     setSetting('receipt_address', $_POST['receipt_address']);
     setSetting('receipt_phone', $_POST['receipt_phone']);
     setSetting('receipt_header_msg', $_POST['receipt_header_msg']);
     setSetting('receipt_footer_msg', $_POST['receipt_footer_msg']);
-    
-    $success = "Созламалар сақланди!";
+    setSetting('receipt_qr_link', $_POST['receipt_qr_link']);
+    $success = "Чек созламалари сақланди!";
 }
 
 // Handle Manual Backup
@@ -110,7 +112,7 @@ render_header('Созламалар');
                         <button type="submit" name="test_printer" class="btn btn-outline-secondary">TEST</button>
                     </div>
                 </div>
-                <button type="submit" name="update_settings" class="btn btn-primary">САҚЛАШ</button>
+                <button type="submit" name="update_general" class="btn btn-primary">САҚЛАШ</button>
             </form>
         </div>
 
@@ -123,26 +125,35 @@ render_header('Созламалар');
                 <div class="row g-3">
                     <div class="col-md-12">
                         <label class="form-label small fw-bold text-muted">Дўкон номи</label>
-                        <input type="text" name="receipt_store_name" class="form-control" value="<?php echo getSetting('receipt_store_name', 'LIFE STORE'); ?>">
+                        <input type="text" name="receipt_store_name" id="inp_store_name" class="form-control" value="<?php echo getSetting('receipt_store_name', 'LIFE STORE'); ?>">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Манзил</label>
-                        <input type="text" name="receipt_address" class="form-control" value="<?php echo getSetting('receipt_address', 'Тошкент ш.'); ?>">
+                        <input type="text" name="receipt_address" id="inp_address" class="form-control" value="<?php echo getSetting('receipt_address', 'Тошкент ш.'); ?>">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Телефон</label>
-                        <input type="text" name="receipt_phone" class="form-control" value="<?php echo getSetting('receipt_phone', '+998'); ?>">
+                        <input type="text" name="receipt_phone" id="inp_phone" class="form-control" value="<?php echo getSetting('receipt_phone', '+998'); ?>">
                     </div>
                     <div class="col-md-12">
                         <label class="form-label small fw-bold text-muted">Чек юқори қисми (Header)</label>
-                        <input type="text" name="receipt_header_msg" class="form-control" value="<?php echo getSetting('receipt_header_msg', 'ИНВЕНТАРНИ БОШҚАРИШ ТИЗИМИ'); ?>">
+                        <input type="text" name="receipt_header_msg" id="inp_header_msg" class="form-control" value="<?php echo getSetting('receipt_header_msg', 'ИНВЕНТАРНИ БОШҚАРИШ ТИЗИМИ'); ?>">
                     </div>
                     <div class="col-md-12">
                         <label class="form-label small fw-bold text-muted">Чек пастки қисми (Footer)</label>
-                        <input type="text" name="receipt_footer_msg" class="form-control" value="<?php echo getSetting('receipt_footer_msg', 'Ҳаридингиз учун раҳмат!'); ?>">
+                        <textarea name="receipt_footer_msg" id="inp_footer_msg" class="form-control" rows="2"><?php echo getSetting('receipt_footer_msg', 'Ҳаридингиз учун раҳмат!'); ?></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-muted">QR код учун ҳавола (Link)</label>
+                        <input type="text" name="receipt_qr_link" id="inp_qr_link" class="form-control" placeholder="https://..." value="<?php echo getSetting('receipt_qr_link', ''); ?>">
                     </div>
                 </div>
-                <button type="submit" name="update_settings" class="btn btn-primary w-100 mt-4 py-3 shadow-sm rounded-3">САҚЛАШ</button>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="button" class="btn btn-outline-secondary w-50 py-3 shadow-sm rounded-3" data-bs-toggle="modal" data-bs-target="#receiptPreviewModal">
+                        <i class="bi bi-eye"></i> Кўриш (Preview)
+                    </button>
+                    <button type="submit" name="update_receipt" class="btn btn-primary w-50 py-3 shadow-sm rounded-3">САҚЛАШ</button>
+                </div>
             </form>
         </div>
     </div>
@@ -203,5 +214,121 @@ render_header('Созламалар');
     </div>
   </div>
 </div>
+
+<!-- Receipt Preview Modal -->
+<div class="modal fade" id="receiptPreviewModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" style="background-color: #e9ecef;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fs-6 text-muted">Чек кўриниши</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body d-flex justify-content-center pt-2">
+         <div id="mock-receipt" style="background:#fff; width:100%; max-width:300px; padding:15px; font-family:'Courier New', Courier, monospace; font-size:12px; color:#000; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+            <div class="text-center mb-2" style="text-align: center;">
+                <h2 id="prev_store_name" style="margin: 0; font-size:18px; font-weight:bold; text-transform:uppercase;">LIFE STORE</h2>
+                <p id="prev_header_msg" style="margin: 5px 0 0 0;">ИНВЕНТАРНИ БОШҚАРИШ ТИЗИМИ</p>
+                <p style="margin: 5px 0 0 0; font-size: 10px;"><span id="prev_address">Тошкент ш.</span> | <span id="prev_phone">+998</span></p>
+                <p style="margin: 5px 0 0 0; font-size: 10px;"><?php echo date('d.m.Y H:i'); ?></p>
+            </div>
+            <div style="border-top:1px dashed #000; margin:8px 0;"></div>
+            <div style="font-size: 10px; margin-bottom: 8px;">
+                <div>Чек №: <span style="font-weight:bold;">12345</span></div>
+                <div>Кассир: <span style="font-weight:bold;">Admin</span></div>
+                <div>Мижоз: <span style="font-weight:bold;">Оддий мижоз</span></div>
+            </div>
+            <div style="border-top:1px dashed #000; margin:8px 0;"></div>
+            <div style="font-weight:bold; margin-bottom: 8px; display:flex; justify-content:space-between;">
+                <span>Маҳсулот</span><span>Жами</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                <div style="width:60%;">Намуна товар 1</div><div style="width:40%; text-align:right;">15,000</div>
+            </div>
+            <div style="font-size: 9px; margin-bottom: 5px;">2 x 7,500</div>
+            
+            <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                <div style="width:60%;">Намуна товар 2</div><div style="width:40%; text-align:right;">25,000</div>
+            </div>
+            <div style="font-size: 9px; margin-bottom: 5px;">1 x 25,000</div>
+
+            <div style="border-top:1px dashed #000; margin:8px 0;"></div>
+            <div style="text-align:right; font-size:14px;">
+                ЖАМИ: <span style="font-weight:bold;">40,000</span>
+            </div>
+            <div style="margin-top: 8px; font-size: 10px;">
+                Тўлов тури: <span style="font-weight:bold;">Нахт</span>
+            </div>
+            <div style="border-top:1px dashed #000; margin:8px 0;"></div>
+            <div id="prev_footer_msg" style="text-align:center; margin-top:15px; font-size:10px;">
+                ҲАРИДИНГИЗ УЧУН РАҲМАТ!<br>ЯНА КУТИБ ҚОЛАМИЗ.
+            </div>
+            <div id="prev_qr_container" style="display:flex; justify-content:center; margin-top:10px;">
+                <div id="prev_qr"></div>
+            </div>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../includes/qrcode.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = ['store_name', 'address', 'phone', 'header_msg', 'footer_msg'];
+    const qrLinkInput = document.getElementById('inp_qr_link');
+    const qrContainer = document.getElementById('prev_qr_container');
+    const qrDiv = document.getElementById('prev_qr');
+    let qrcodeInstance = null;
+    
+    inputs.forEach(id => {
+        const inputEl = document.getElementById('inp_' + id);
+        const prevEl = document.getElementById('prev_' + id);
+        if(inputEl && prevEl) {
+            inputEl.addEventListener('input', (e) => {
+                let val = e.target.value;
+                if(id === 'store_name') val = val.toUpperCase();
+                if(id === 'footer_msg') val = val.replace(/\n|\\n/g, '<br>');
+                prevEl.innerHTML = val || '...';
+            });
+            // Initial call
+            const evt = new Event('input');
+            inputEl.dispatchEvent(evt);
+        }
+    });
+
+    if (qrLinkInput) {
+        qrLinkInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            qrDiv.innerHTML = '';
+            if (val) {
+                qrContainer.style.display = 'flex';
+                qrcodeInstance = new QRCode(qrDiv, {
+                    text: val,
+                    width: 70,
+                    height: 70,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            } else {
+                qrContainer.style.display = 'none';
+            }
+        });
+        qrLinkInput.dispatchEvent(new Event('input'));
+    }
+
+    // Make sure preview opens cleanly
+    const previewBtn = document.querySelector('[data-bs-target="#receiptPreviewModal"]');
+    if (previewBtn) {
+        previewBtn.addEventListener('click', () => {
+            inputs.forEach(id => {
+                const inputEl = document.getElementById('inp_' + id);
+                if (inputEl) inputEl.dispatchEvent(new Event('input'));
+            });
+            if (qrLinkInput) qrLinkInput.dispatchEvent(new Event('input'));
+        });
+    }
+});
+</script>
 
 <?php render_footer(); ?>

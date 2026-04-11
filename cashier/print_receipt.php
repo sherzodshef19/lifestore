@@ -17,6 +17,7 @@ $items = $conn->query("SELECT si.*, p.name
                        FROM sale_items si 
                        JOIN products p ON si.product_id = p.id 
                        WHERE si.sale_id = $sale_id");
+$qr_link = getSetting('receipt_qr_link', '');
 ?>
 <!DOCTYPE html>
 <html lang="uz">
@@ -99,14 +100,33 @@ $items = $conn->query("SELECT si.*, p.name
     <?php echo nl2br(getSetting('receipt_footer_msg', "ҲАРИДИНГИЗ УЧУН РАҲМАТ!\nЯНА КУТИБ ҚОЛАМИЗ.")); ?>
 </div>
 
+<?php if($qr_link): ?>
+<div style="display:flex; justify-content:center; margin-top:15px; margin-bottom:10px;">
+    <div id="receipt-qr"></div>
+</div>
+<?php endif; ?>
+
 <div class="no-print" style="margin-top: 30px; text-align: center;">
     <button onclick="window.print()" style="padding: 10px 20px;">ЧОП ЭТИШ</button>
 </div>
 
+<script src="../includes/qrcode.min.js"></script>
 <script>
     window.onload = function() {
-        window.print();
-        // Optional: window.close(); // Close window after printing
+        <?php if($qr_link): ?>
+        new QRCode(document.getElementById("receipt-qr"), {
+            text: "<?php echo addslashes($qr_link); ?>",
+            width: 100,
+            height: 100,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.L
+        });
+        <?php endif; ?>
+        
+        setTimeout(() => {
+            window.print();
+        }, 500);
     };
 </script>
 
